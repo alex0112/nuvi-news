@@ -13,7 +13,7 @@ def scrape_zip_files(url) ## Returns array of urls to zip files
   zip_urls = filenames.map {|filename| url + filename }
 end
 
-def 
+
 
 
 
