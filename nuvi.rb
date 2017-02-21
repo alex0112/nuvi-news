@@ -64,8 +64,8 @@ end
 
 
 ## Where the magic happens:
-#scrape_zip_files(uri_param)
-#extract_zip()
+scrape_zip_files(uri_param)
+extract_zip()
 push_xml_to_redis()
 
 puts 'success'
