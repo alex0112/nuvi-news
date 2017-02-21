@@ -18,7 +18,6 @@ def scrape_zip_files(uri, write_dir="tmp")
   puts 'Locating zip files at specified URI...'
   page_obj = Nokogiri::HTML(HTTParty.get(uri))
   filenames = page_obj.css('td a').map {|node| node['href'] }.select {|attr| attr.include? ".zip"} ## Exclude anything that doesn't end with '.zip'
-  filenames = filenames[4..8]
   zip_uris = filenames.map {|filename| uri + filename}
   filenames_to_uris = [filenames, zip_uris].transpose.to_h
   puts 'Located.'
