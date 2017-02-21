@@ -3,7 +3,7 @@ require 'httparty'
 require 'nokogiri'
 require 'fileutils'
 require 'zip'
-
+require 'redis'
 
 uri_param = ARGV[0]
 if uri_param == nil then
@@ -18,6 +18,7 @@ def scrape_zip_files(uri, write_dir="tmp")
   puts 'Locating zip files at specified URI...'
   page_obj = Nokogiri::HTML(HTTParty.get(uri))
   filenames = page_obj.css('td a').map {|node| node['href'] }.select {|attr| attr.include? ".zip"} ## Exclude anything that doesn't end with '.zip'
+  filenames = filenames[0..1]
   zip_uris = filenames.map {|filename| uri + filename}
   filenames_to_uris = [filenames, zip_uris].transpose.to_h
   puts 'Located.'
@@ -51,10 +52,20 @@ def extract_zip(read_dir="tmp", write_dir="xml")
   end 
 end
 
+def push_xml_to_redis_list(read_dir="xml", redis_list="NEWS_XML")
+  redis = Redis.new()
+  file_list = Dir.foreach("#{read_dir}").drop(2) ## .drop(2) because the first two elements are . and ..
+  file_list.each do |filename|
+    file_data = File.read(File.join(read_dir, filename))
+    redis.rpush(redis_list, {filename => file_data}.to_json) ## Save each file in the list as json
+  end
+end
 
+
+## Where the magic happens:
 scrape_zip_files(uri_param)
 extract_zip()
-
+push_xml_to_redis_list()
 
 puts 'success'
 puts '(whew!)'
