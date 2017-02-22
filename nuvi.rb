@@ -5,15 +5,10 @@ require 'fileutils'
 require 'zip'
 require 'redis'
 
-uri_param = ARGV[0]
-if uri_param == nil then
-  uri_param = 'http://feed.omgili.com/5Rh5AMTrc4Pv/mainstream/posts/'
-end
-
 Zip.on_exists_proc = true ## When extracting zip files, old files will be overwritten.
 
 
-def scrape_zip_files(uri, write_dir="tmp")
+def scrape_zip_files(uri="http://feed.omgili.com/5Rh5AMTrc4Pv/mainstream/posts/", write_dir="tmp")
   ## Get the filenames
   puts 'Locating zip files at specified URI...'
   page_obj = Nokogiri::HTML(HTTParty.get(uri))
@@ -57,14 +52,13 @@ def push_xml_to_redis(read_dir="xml", redis_key="NEWS_XML")
   file_list = Dir.foreach("#{read_dir}").drop(2) ## .drop(2) because the first two elements are . and ..
   file_list.each do |filename|
     file_data = File.read(File.join(read_dir, filename))
-#    redis.rpush(redis_list, {filename => file_data}.to_json) ## Save each file in the list as json
     redis.hset(redis_key, filename, file_data)
   end
 end
 
 
 ## Where the magic happens:
-scrape_zip_files(uri_param)
+scrape_zip_files()
 extract_zip()
 push_xml_to_redis()
 
