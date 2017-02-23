@@ -14,7 +14,18 @@ class Scraper
   def initialize(uri="http://feed.omgili.com/5Rh5AMTrc4Pv/mainstream/posts/", write_dir="tmp")
     ## Get the filenames
     puts 'Locating zip files at specified URI...'
+    begin
     page_obj = Nokogiri::HTML(HTTParty.get(uri))
+    rescue HTTParty::Error
+      puts "Error connecting to #{uri}. It may be that your connection is down, or that the address is bad."
+      puts "Exiting..."
+      exit
+    rescue StandardError
+      puts "Error connecting to #{uri}. It may be that your connection is down, or that the address is bad."
+      puts "Exiting..."
+      exit
+    end
+
     filenames = page_obj.css('td a').map {|node| node['href'] }.select {|attr| attr.include? ".zip"} ## Exclude anything that doesn't end with '.zip'
     filenames = filenames[0..1]
     zip_uris = filenames.map {|filename| uri + filename}
