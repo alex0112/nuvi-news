@@ -11,7 +11,7 @@ Zip.on_exists_proc = true ## When extracting zip files, old files will be overwr
 class Scraper
   attr_accessor :uri
   
-  def initialize(uri="http://feed.omgili.com/5Rh5AMTrc4Pv/mainstream/posts/", write_dir="tmp")
+  def initialize(uri: "http://feed.omgili.com/5Rh5AMTrc4Pv/mainstream/posts/", write_dir: "tmp")
     ## Get the filenames
     puts 'Locating zip files at specified URI...'
     begin
@@ -43,7 +43,7 @@ class Scraper
     end
   end
 
-  def extract_zip(read_dir="tmp", write_dir="xml")
+  def extract_zip(read_dir: "tmp", write_dir: "xml")
     Dir.mkdir(write_dir) if !Dir.exists? write_dir
     Dir.foreach(read_dir).drop(2).each do |filename| ## .drop(2) because the first two elements are . and ..
       puts "Extracting #{filename}"
@@ -60,7 +60,7 @@ class Scraper
     end 
   end
 
-  def push_xml_to_redis(read_dir="xml", redis_key="NEWS_XML")
+  def push_xml_to_redis(read_dir: "xml", redis_key: "NEWS_XML")
     redis = Redis.new()
     file_list = Dir.foreach("#{read_dir}").drop(2) ## .drop(2) because the first two elements are . and ..
     file_list.each do |filename|
